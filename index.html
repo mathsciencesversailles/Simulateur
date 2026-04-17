@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulateurs de probabilités</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #1a1714;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    .title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 0.4rem;
+      position: relative;
+    }
+
+    .title em { font-style: italic; color: #f0a070; }
+
+    .sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      position: relative;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+    }
+
+    a.btn {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    }
+
+    a.btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.22);
+      transform: translateX(4px);
+    }
+
+    .btn-icon {
+      font-size: 1.6rem;
+      width: 40px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .btn-text { flex: 1; }
+
+    .btn-title {
+      font-size: 15px;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .btn-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 300;
+    }
+
+    .btn-arrow {
+      font-size: 14px;
+      color: rgba(255,255,255,0.25);
+      transition: color 0.18s;
+    }
+
+    a.btn:hover .btn-arrow { color: rgba(255,255,255,0.7); }
+
+    .title  { animation: up 0.5s ease both; }
+    .sub    { animation: up 0.5s 0.07s ease both; }
+    a.btn:nth-child(1) { animation: up 0.45s 0.12s ease both; }
+    a.btn:nth-child(2) { animation: up 0.45s 0.19s ease both; }
+    a.btn:nth-child(3) { animation: up 0.45s 0.26s ease both; }
+    a.btn:nth-child(4) { animation: up 0.45s 0.33s ease both; }
+
+    @keyframes up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 400px) {
+      .btn-icon { font-size: 1.3rem; width: 32px; }
+      .btn-title { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="title">Simulateurs de <em>probabilités</em></h1>
+  <p class="sub">Choisissez une expérience aléatoire</p>
+
+  <div class="buttons">
+    <a class="btn" href="simulateur_piece.html">
+      <span class="btn-icon">🪙</span>
+      <span class="btn-text">
+        <span class="btn-title">Lancer de pièce</span>
+        <span class="btn-sub">Pile ou face — 2 issues</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+
+    <a class="btn" href="simulateur_lancer_des.html">
+      <span class="btn-icon">🎲</span>
+      <span class="btn-text">
+        <span class="btn-title">Lancer d'un dé</span>
+        <span class="btn-sub">Six faces — loi uniforme</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+
+    <a class="btn" href="simulateur_deux_des.html">
+      <span class="btn-icon">🎲🎲</span>
+      <span class="btn-text">
+        <span class="btn-title">Somme de deux dés</span>
+        <span class="btn-sub">X = somme — 11 valeurs</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+
+    <a class="btn" href="simulateur_roue.html">
+      <span class="btn-icon">🎡</span>
+      <span class="btn-text">
+        <span class="btn-title">Roue aléatoire</span>
+        <span class="btn-sub">5 couleurs — secteurs réglables</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulateur de lancer de deux dés</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff; --bg2: #f4f3ef; --bg3: #eceae3;
+      --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
+      --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+      --info-bg: #e6f1fb; --info-text: #185fa5;
+      --radius: 8px; --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #343430;
+        --text: #f0ede6; --text2: #b4b2a9; --text3: #888780;
+        --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
+        --info-bg: #0c447c; --info-text: #b5d4f4;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg3); color: var(--text);
+      min-height: 100vh; display: flex; align-items: flex-start;
+      justify-content: center; padding: 2rem 1rem;
+    }
+    .card {
+      background: var(--bg); border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border); padding: 2rem;
+      width: 100%; max-width: 800px;
+    }
+    h1 { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+    button {
+      padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer;
+      border: 0.5px solid var(--border2); background: var(--bg); color: var(--text);
+      border-radius: var(--radius); transition: background 0.15s, transform 0.1s;
+      font-family: inherit;
+    }
+    button:hover { background: var(--bg2); }
+    button:active { transform: scale(0.97); }
+    button.reset { background: #E24B4A; color: #fff; border-color: #A32D2D; }
+    button.reset:hover { background: #A32D2D; border-color: #791F1F; }
+    .metric-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px; margin-bottom: 1.2rem;
+    }
+    .metric { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; }
+    .metric-label { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+    .metric-value { font-size: 22px; font-weight: 500; color: var(--text); }
+    .metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .progress-wrap { height: 4px; background: var(--bg3); border-radius: 2px; margin: 6px 0 4px; overflow: hidden; }
+    .progress-bar { height: 4px; background: #378ADD; border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+    .progress-label { font-size: 11px; color: var(--text3); margin-bottom: 1.2rem; }
+    .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text2); margin-bottom: 8px; align-items: center; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+    .chart-wrap { position: relative; width: 100%; height: 340px; }
+    .history-section { margin-top: 1.2rem; font-size: 12px; color: var(--text3); }
+    .history-title { font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+    .history-row { padding: 5px 0; border-bottom: 0.5px solid var(--border); line-height: 1.5; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--radius); background: var(--info-bg); color: var(--info-text); }
+    .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0; }
+    footer { margin-top: 1.5rem; font-size: 11px; color: var(--text3); text-align: center; }
+
+    .dice-visual {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 1.5rem;
+      padding: 16px; background: var(--bg2); border-radius: var(--radius);
+      border: 0.5px solid var(--border);
+    }
+    .die {
+      font-size: 36px; transition: opacity 0.2s;
+    }
+    .plus-sign { font-size: 20px; color: var(--text3); font-weight: 500; }
+    .equals-sign { font-size: 20px; color: var(--text3); font-weight: 500; }
+    .sum-display {
+      font-size: 28px; font-weight: 500; color: var(--text);
+      min-width: 48px; text-align: center;
+      background: var(--bg); border-radius: var(--radius);
+      border: 0.5px solid var(--border2); padding: 4px 12px;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 0.5rem; }
+      .card { padding: 1.25rem 1rem; border-radius: var(--radius); }
+      h1 { font-size: 18px; }
+      .subtitle { font-size: 13px; margin-bottom: 1rem; }
+      .btn-group { gap: 6px; margin-bottom: 1rem; }
+      button { padding: 8px 12px; font-size: 13px; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .metric { padding: 10px 12px; }
+      .metric-value { font-size: 18px; }
+      .metric-label { font-size: 11px; }
+      .chart-wrap { height: 260px; }
+      .dice-visual { padding: 12px; gap: 8px; }
+      .die { font-size: 28px; }
+      .sum-display { font-size: 22px; padding: 4px 8px; }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Simulateur — somme de deux dés</h1>
+  <p class="subtitle">
+    On lance deux dés et on observe la somme X. Vers quelle distribution les fréquences semblent-elles se stabiliser ?
+  </p>
+
+  <div class="dice-visual">
+    <span class="die" id="die1">⚀</span>
+    <span class="plus-sign">+</span>
+    <span class="die" id="die2">⚀</span>
+    <span class="equals-sign">=</span>
+    <span class="sum-display" id="last-sum">—</span>
+  </div>
+
+  <div class="btn-group">
+    <button onclick="lancer(10)">10 lancers</button>
+    <button onclick="lancer(100)">100 lancers</button>
+    <button onclick="lancer(1000)">1 000 lancers</button>
+    <button onclick="lancer(100000)">100 000 lancers</button>
+    <button class="reset" onclick="reset()">Réinitialiser</button>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-label">Total lancers</div>
+      <div class="metric-value" id="stat-total">0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Écart max (théorie)</div>
+      <div class="metric-value" id="stat-ecart">—</div>
+      <div class="metric-sub" id="stat-ecart-sub"></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Somme la + fréquente</div>
+      <div class="metric-value" id="stat-max">—</div>
+      <div class="metric-sub" id="stat-max-sub"></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Somme la − fréquente</div>
+      <div class="metric-value" id="stat-min">—</div>
+      <div class="metric-sub" id="stat-min-sub"></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
+  <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±1 % de la valeur théorique</div>
+
+  <div class="legend">
+    <span><span class="legend-dot" style="background:#378ADD;"></span>Fréquence observée</span>
+    <span><span class="legend-dot" style="background:#E24B4A; opacity:0.6;"></span>Probabilité théorique</span>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences observées pour chaque somme de deux dés">Fréquences des sommes de 2 à 12.</canvas>
+  </div>
+
+  <div class="history-section" id="history-wrap" hidden>
+    <hr class="divider">
+    <div class="history-title">Historique des sessions</div>
+    <div id="history"></div>
+  </div>
+
+  <footer>Simulateur de lancer de deux dés</footer>
+</div>
+
+<script>
+  const THEORICS = [1,2,3,4,5,6,5,4,3,2,1].map(n => n/36);
+  const LABELS   = ['2','3','4','5','6','7','8','9','10','11','12'];
+  const FACES    = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+  let counts = new Array(11).fill(0);
+  let total  = 0;
+  let history = [];
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // Plugin: draw dashed step outline using scale tick positions (bar.width is slot width, not bar width)
+  const stepsPlugin = {
+    id: 'stepsPlugin',
+    afterDatasetsDraw(chart) {
+      const xScale = chart.scales.x;
+      const yScale = chart.scales.y;
+      const n = THEORICS.length;
+      if (!xScale || xScale.ticks.length < 2) return;
+      const halfSlot = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) / 2;
+      const cCtx = chart.ctx;
+      cCtx.save();
+      cCtx.strokeStyle = '#E24B4A';
+      cCtx.lineWidth = 2;
+      cCtx.setLineDash([6, 4]);
+      cCtx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const cx = xScale.getPixelForTick(i);
+        const x1 = cx - halfSlot;
+        const x2 = cx + halfSlot;
+        const y  = yScale.getPixelForValue(THEORICS[i]);
+        if (i === 0) cCtx.moveTo(x1, y); else cCtx.lineTo(x1, y);
+        cCtx.lineTo(x2, y);
+        if (i < n - 1) cCtx.lineTo(x2, yScale.getPixelForValue(THEORICS[i + 1]));
+      }
+      cCtx.stroke();
+      cCtx.restore();
+    }
+  };
+
+  const blueGradient = LABELS.map((_, i) => {
+    const t = 1 - Math.abs(i - 5) / 5;
+    return `rgba(55,138,221,${0.4 + t * 0.6})`;
+  });
+
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    plugins: [stepsPlugin],
+    data: {
+      labels: LABELS,
+      datasets: [{
+        label: 'Fréquence observée',
+        data: new Array(11).fill(0),
+        backgroundColor: blueGradient,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 280 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (c) => {
+              const f = c.parsed.y;
+              const n = Math.round(f * total);
+              return [`Fréq. : ${(f*100).toFixed(2)} %`, `Occurrences : ${n.toLocaleString('fr-FR')}`];
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0, max: 0.20,
+          ticks: { callback: v => (v*100).toFixed(0) + ' %', font: { size: 12 }, color: '#888780' },
+          grid: { color: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }
+        },
+        x: {
+          ticks: { font: { size: 12 }, color: '#888780', autoSkip: false, maxRotation: 0 },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  function rollBatch(n) {
+    const c = new Array(11).fill(0);
+    let lastD1 = 0, lastD2 = 0;
+    for (let i = 0; i < n; i++) {
+      lastD1 = Math.floor(Math.random() * 6);
+      lastD2 = Math.floor(Math.random() * 6);
+      c[lastD1 + lastD2]++;
+    }
+    return { c, lastD1, lastD2 };
+  }
+
+  function lancer(n) {
+    const { c, lastD1, lastD2 } = rollBatch(n);
+    for (let i = 0; i < 11; i++) counts[i] += c[i];
+    total += n;
+    document.getElementById('die1').textContent = FACES[lastD1];
+    document.getElementById('die2').textContent = FACES[lastD2];
+    document.getElementById('last-sum').textContent = lastD1 + lastD2 + 2;
+    updateUI(n);
+  }
+
+  function updateUI(lancés) {
+    const freqs = counts.map(c => c / total);
+    chart.data.datasets[0].data = freqs;
+    const maxFreq = Math.max(...freqs);
+    chart.options.scales.y.max = Math.min(Math.max(maxFreq * 1.15, 0.20), 0.35);
+    chart.update();
+
+    document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
+    const ecarts  = freqs.map((f, i) => Math.abs(f - THEORICS[i]));
+    const maxEcart = Math.max(...ecarts);
+    document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
+    document.getElementById('stat-ecart-sub').textContent =
+      total >= 1000 && maxEcart < 0.01 ? '✓ < 1 % — bonne convergence' : '';
+
+    const maxIdx = freqs.indexOf(Math.max(...freqs));
+    const minIdx = freqs.indexOf(Math.min(...freqs));
+    document.getElementById('stat-max').textContent = 'Somme ' + (maxIdx + 2);
+    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % — ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-min').textContent = 'Somme ' + (minIdx + 2);
+    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % — ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
+
+    const allClose = ecarts.every(e => e < 0.01);
+    const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.2) * 100)));
+    document.getElementById('conv-bar').style.width = pct + '%';
+
+    history.push({ n: lancés, total, ecart: (maxEcart*100).toFixed(2) });
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const wrap = document.getElementById('history-wrap');
+    const div  = document.getElementById('history');
+    wrap.hidden = history.length === 0;
+    div.innerHTML = history.slice(-6).reverse().map(h =>
+      `<div class="history-row">+${h.n.toLocaleString('fr-FR')} lancers → total ${h.total.toLocaleString('fr-FR')} &nbsp;·&nbsp; écart max <span class="tag">${h.ecart} %</span></div>`
+    ).join('');
+  }
+
+  function reset() {
+    counts = new Array(11).fill(0); total = 0; history = [];
+    chart.data.datasets[0].data = new Array(11).fill(0);
+    chart.options.scales.y.max = 0.20;
+    chart.update('none');
+    ['stat-total','stat-ecart','stat-max','stat-min'].forEach(id => document.getElementById(id).textContent = id === 'stat-total' ? '0' : '—');
+    ['stat-ecart-sub','stat-max-sub','stat-min-sub'].forEach(id => document.getElementById(id).textContent = '');
+    document.getElementById('last-sum').textContent = '—';
+    document.getElementById('die1').textContent = '⚀';
+    document.getElementById('die2').textContent = '⚀';
+    document.getElementById('conv-bar').style.width = '0%';
+    renderHistory();
+  }
+</script>
+</body>
+</html>
