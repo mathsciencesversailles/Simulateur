@@ -105,6 +105,7 @@
 </head>
 <body>
 <div class="card">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:1rem;" onmouseover="this.style.color='var(--text2)'" onmouseout="this.style.color='var(--text3)'">← Accueil</a>
   <h1>Simulateur — somme de deux dés</h1>
   <p class="subtitle">
     On lance deux dés et on observe la somme X. Vers quelle distribution les fréquences semblent-elles se stabiliser ?
@@ -119,6 +120,8 @@
   </div>
 
   <div class="btn-group">
+    <button onclick="lancer(1)">1 lancer</button>
+    <button onclick="lancer(5)">5 lancers</button>
     <button onclick="lancer(10)">10 lancers</button>
     <button onclick="lancer(100)">100 lancers</button>
     <button onclick="lancer(1000)">1 000 lancers</button>
@@ -149,7 +152,7 @@
   </div>
 
   <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
-  <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±1 % de la valeur théorique</div>
+  <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
 
   <div class="legend">
     <span><span class="legend-dot" style="background:#378ADD;"></span>Fréquence observée</span>
@@ -288,7 +291,7 @@
     const maxEcart = Math.max(...ecarts);
     document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
     document.getElementById('stat-ecart-sub').textContent =
-      total >= 1000 && maxEcart < 0.01 ? '✓ < 1 % — bonne convergence' : '';
+      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % — excellente convergence' : '';
 
     const maxIdx = freqs.indexOf(Math.max(...freqs));
     const minIdx = freqs.indexOf(Math.min(...freqs));
@@ -297,7 +300,7 @@
     document.getElementById('stat-min').textContent = 'Somme ' + (minIdx + 2);
     document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % — ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
 
-    const allClose = ecarts.every(e => e < 0.01);
+    const allClose = ecarts.every(e => e < 0.001);
     const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.2) * 100)));
     document.getElementById('conv-bar').style.width = pct + '%';
 
