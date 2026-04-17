@@ -133,11 +133,33 @@
       .color-name { font-size: 12px; min-width: 48px; }
       .step-btn { width: 26px; height: 26px; font-size: 14px; }
     }
+
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      margin-bottom: 1.2rem;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text2);
+      background: var(--bg2);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, transform 0.15s;
+    }
+    .btn-home:hover {
+      background: var(--bg3);
+      color: var(--text);
+      transform: translateX(-3px);
+    }
+    .btn-home:active { transform: scale(0.97); }
   </style>
 </head>
 <body>
 <div class="card">
-  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none;margin-bottom:1rem;" onmouseover="this.style.color='var(--text2)'" onmouseout="this.style.color='var(--text3)'">← Accueil</a>
+  <a href="index.html" class="btn-home">← Accueil</a>
   <h1>Simulateur de roue aléatoire</h1>
   <p class="subtitle">
     Configurez le nombre de secteurs de chaque couleur, puis lancez la roue — vers quelles fréquences la roue semble-t-elle converger ?
@@ -190,11 +212,6 @@
   <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
   <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
 
-  <div class="legend">
-    <span><span class="legend-dot" style="background:#378ADD;"></span>Fréquence observée</span>
-    <span><span class="legend-dot" style="background:#E24B4A; opacity:0.6;"></span>Probabilité théorique</span>
-  </div>
-
   <div class="chart-wrap">
     <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences observées par couleur de la roue">Fréquences par couleur.</canvas>
   </div>
@@ -205,7 +222,7 @@
     <div id="history"></div>
   </div>
 
-  <footer>Simulateur de roue aléatoire</footer>
+  <footer>Simulateur de roue aléatoire &nbsp;·&nbsp; Bug ou suggestion ? <a href="mailto:pro.louislagon@gmail.com" style="color:var(--text3);text-underline-offset:3px;">pro.louislagon@gmail.com</a></footer>
 </div>
 
 <script>
