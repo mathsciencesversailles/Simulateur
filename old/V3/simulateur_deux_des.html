@@ -209,12 +209,12 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .btn-reveal {
-      background: var(--bg2);
-      border: 0.5px solid var(--border2);
+      background: transparent;
+      border: 1px dashed var(--border2);
       color: var(--text2);
     }
-    .btn-reveal:hover { background: var(--bg3); color: var(--text); }
-    .btn-reveal.active { border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
+    .btn-reveal:hover { background: var(--bg2); color: var(--text); }
+    .btn-reveal.active { border-style: solid; border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
     .btn-export {
       background: var(--bg2);
       border: 0.5px solid var(--border2);
@@ -246,7 +246,7 @@
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = saved || (prefersDark ? 'dark' : 'light');
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     document.addEventListener('DOMContentLoaded', () => {
       if (theme !== 'light') document.body.classList.add(theme);
       const btn = document.querySelector('.theme-toggle');
@@ -255,7 +255,7 @@
   })();
   function toggleTheme() {
     const b = document.body;
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     let next;
     if (b.classList.contains('dark'))      { b.classList.replace('dark','geek'); next='geek'; }
     else if (b.classList.contains('geek')) { b.classList.remove('geek');          next='light'; }
@@ -267,20 +267,21 @@
     const panel = document.getElementById('reveal-panel');
     const btn   = document.getElementById('btn-reveal');
     panel.hidden = !panel.hidden;
+    showTheoretical = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
+    btn.textContent = panel.hidden ? '🔍 Voir la probabilité théorique' : '🙈 Masquer';
+    chart.update();
   }
 
   function exportCSV() {
     if (!total) return;
     const freqs = counts.map(c => c / total);
-    let csv = 'Somme;Occurrences\n';
+    let csv = 'Somme,Occurrences,Fréquence observée (%),Probabilité théorique (%)\n';
     const numer = [1,2,3,4,5,6,5,4,3,2,1];
     for (let i = 0; i < 11; i++) {
-      csv += `${i+2};${counts[i]}\n`;
+      csv += `${i+2},${counts[i]},${(freqs[i]*100).toFixed(4)},${(numer[i]/36*100).toFixed(4)}\n`;
     }
-    
-    csv = 'sep=;\n' + csv;
+    csv += `Total,${total},100.0000,100.0000\n`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = `deux_des_${total}_lancers.csv`; a.click();
@@ -288,13 +289,22 @@
 </script>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">🌙</button>
 <div class="card">
   <a href="index.html" class="btn-home">← Accueil</a>
   <h1>Simulateur de lancer de 2 dés équilibrés</h1>
   <p class="subtitle">
     On lance deux dés et on observe leur somme. Vers quelles valeurs les fréquences semblent-elles se stabiliser ?
   </p>
+
+  <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;font-weight:500;">Résultat du dernier lancer</div>
+  <div class="dice-visual">
+    <span class="die" id="die1">⚀</span>
+    <span class="plus-sign">+</span>
+    <span class="die" id="die2">⚀</span>
+    <span class="equals-sign">=</span>
+    <span class="sum-display" id="last-sum">—</span>
+  </div>
 
   <div class="btn-group">
     <button onclick="lancer(1)">1 lancer</button>
@@ -332,20 +342,39 @@
       <div class="metric-sub" id="stat-min-sub"></div>
     </div>
   </div>
+
+  <div class="btn-reveal-wrap"><button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button></div>
+  <div class="reveal-panel" id="reveal-panel" hidden>
+    <div class="reveal-title">Probabilités théoriques — somme de deux dés</div>
+    <div class="reveal-grid">
+      <div class="reveal-item"><div class="ri-label">Somme 2</div><div class="ri-val">2,78 %</div><div class="ri-frac">= 1/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 3</div><div class="ri-val">5,56 %</div><div class="ri-frac">= 2/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 4</div><div class="ri-val">8,33 %</div><div class="ri-frac">= 3/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 5</div><div class="ri-val">11,11 %</div><div class="ri-frac">= 4/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 6</div><div class="ri-val">13,89 %</div><div class="ri-frac">= 5/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 7</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 6/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 8</div><div class="ri-val">13,89 %</div><div class="ri-frac">= 5/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 9</div><div class="ri-val">11,11 %</div><div class="ri-frac">= 4/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 10</div><div class="ri-val">8,33 %</div><div class="ri-frac">= 3/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 11</div><div class="ri-val">5,56 %</div><div class="ri-frac">= 2/36</div></div>
+      <div class="reveal-item"><div class="ri-label">Somme 12</div><div class="ri-val">2,78 %</div><div class="ri-frac">= 1/36</div></div>
+    </div>
+  </div>
+
   <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
-  <div class="progress-label">Convergence - barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
+  <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
 
   <div class="chart-wrap">
     <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences observées pour chaque somme de deux dés">Fréquences des sommes de 2 à 12.</canvas>
   </div>
 
   <div class="btn-actions" style="margin-top:0.75rem;">
-    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">Voir les probabilités théoriques</button>
+    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button>
     <button class="btn-export" onclick="exportCSV()" id="btn-export" disabled>⬇ Exporter en CSV</button>
   </div>
 
     <div class="reveal-panel" id="reveal-panel" hidden>
-    <div class="reveal-title">Probabilités théoriques - somme de deux dés</div>
+    <div class="reveal-title">Probabilités théoriques — somme de deux dés</div>
     <div class="reveal-grid">
       <div class="reveal-item"><div class="ri-label">Somme 2</div><div class="ri-val">2,78 %</div><div class="ri-frac">= 1/36</div></div>
       <div class="reveal-item"><div class="ri-label">Somme 3</div><div class="ri-val">5,56 %</div><div class="ri-frac">= 2/36</div></div>
@@ -375,27 +404,18 @@
   const LABELS   = ['2','3','4','5','6','7','8','9','10','11','12'];
   const FACES    = ['⚀','⚁','⚂','⚃','⚄','⚅'];
 
-  // Escape exits geek mode
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.body.classList.contains('geek')) {
-      document.body.classList.remove('geek');
-      localStorage.setItem('theme', 'light');
-      document.querySelector('.theme-toggle').textContent = '☀️';
-    }
-  });
-
   let counts = new Array(11).fill(0);
   let total  = 0;
   let history = [];
   const isDark = () => document.body.classList.contains('dark');
 
-  let showTheoretical = true;
+  let showTheoretical = false;
 
   // Plugin: draw dashed step outline using scale tick positions (bar.width is slot width, not bar width)
   const stepsPlugin = {
     id: 'stepsPlugin',
     afterDatasetsDraw(chart) {
-
+      if (!showTheoretical) return;
       const xScale = chart.scales.x;
       const yScale = chart.scales.y;
       const n = THEORICS.length;
@@ -456,7 +476,7 @@
       },
       scales: {
         y: {
-          min: 0, max: 0.20,
+          min: 0, max: 1,
           ticks: { callback: v => (v*100).toFixed(0) + ' %', font: { size: 12 }, color: '#888780' },
           grid: { color: isDark() ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }
         },
@@ -467,8 +487,6 @@
       }
     }
   });
-
-  const ceil5 = v => Math.ceil(v * 100 / 5) * 5 / 100;
 
   function rollBatch(n) {
     const c = new Array(11).fill(0);
@@ -489,6 +507,10 @@
     for (let i = 0; i < 11; i++) counts[i] += c[i];
     total += n;
 
+    document.getElementById('die1').textContent = FACES[lastD1];
+    document.getElementById('die2').textContent = FACES[lastD2];
+    document.getElementById('last-sum').textContent = lastD1 + lastD2 + 2;
+
     document.getElementById('last-result-wrap').hidden = false;
     document.getElementById('recent-seq').innerHTML = n <= 20
       ? seq.map(([d1, d2]) =>
@@ -504,7 +526,6 @@
   function updateUI(lancés) {
     const freqs = counts.map(c => c / total);
     chart.data.datasets[0].data = freqs;
-    chart.options.scales.y.max = ceil5(Math.max(...freqs, 0.15));
     chart.update();
 
     document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
@@ -512,14 +533,14 @@
     const maxEcart = Math.max(...ecarts);
     document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
     document.getElementById('stat-ecart-sub').textContent =
-      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % - excellente convergence' : '';
+      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % — excellente convergence' : '';
 
     const maxIdx = freqs.indexOf(Math.max(...freqs));
     const minIdx = freqs.indexOf(Math.min(...freqs));
     document.getElementById('stat-max').textContent = String(maxIdx + 2);
-    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % - ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % — ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
     document.getElementById('stat-min').textContent = String(minIdx + 2);
-    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % - ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % — ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
 
     const allClose = ecarts.every(e => e < 0.001);
     const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.2) * 100)));
@@ -542,10 +563,13 @@
   function reset() {
     counts = new Array(11).fill(0); total = 0; history = [];
     chart.data.datasets[0].data = new Array(11).fill(0);
-    chart.options.scales.y.max = 0.20;
+    chart.options.scales.y.max = 1;
     chart.update('none');
     ['stat-total','stat-ecart','stat-max','stat-min'].forEach(id => document.getElementById(id).textContent = id === 'stat-total' ? '0' : '—');
     ['stat-ecart-sub','stat-max-sub','stat-min-sub'].forEach(id => document.getElementById(id).textContent = '');
+    document.getElementById('last-sum').textContent = '—';
+    document.getElementById('die1').textContent = '⚀';
+    document.getElementById('die2').textContent = '⚀';
     document.getElementById('conv-bar').style.width = '0%';
     document.getElementById('last-result-wrap').hidden = true;
     document.getElementById('recent-seq').innerHTML = '';
@@ -556,20 +580,21 @@
     const panel = document.getElementById('reveal-panel');
     const btn   = document.getElementById('btn-reveal');
     panel.hidden = !panel.hidden;
+    showTheoretical = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
+    btn.textContent = panel.hidden ? '🔍 Voir la probabilité théorique' : '🙈 Masquer';
+    chart.update();
   }
 
   function exportCSV() {
     if (!total) return;
     const freqs = counts.map(c => c / total);
-    let csv = 'Somme;Occurrences\n';
+    let csv = 'Somme,Occurrences,Fréquence observée (%),Probabilité théorique (%)\n';
     const numer = [1,2,3,4,5,6,5,4,3,2,1];
     for (let i = 0; i < 11; i++) {
-      csv += `${i+2};${counts[i]}\n`;
+      csv += `${i+2},${counts[i]},${(freqs[i]*100).toFixed(4)},${(numer[i]/36*100).toFixed(4)}\n`;
     }
-    
-    csv = 'sep=;\n' + csv;
+    csv += `Total,${total},100.0000,100.0000\n`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = `deux_des_${total}_lancers.csv`; a.click();

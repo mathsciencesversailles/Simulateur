@@ -14,11 +14,13 @@
       --info-bg: #e6f1fb; --info-text: #185fa5;
       --radius: 8px; --radius-lg: 12px;
     }
-    body.dark {
-      --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #343430;
-      --text: #f0ede6; --text2: #b4b2a9; --text3: #888780;
-      --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
-      --info-bg: #0c447c; --info-text: #b5d4f4;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #343430;
+        --text: #f0ede6; --text2: #b4b2a9; --text3: #888780;
+        --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
+        --info-bg: #0c447c; --info-text: #b5d4f4;
+      }
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
@@ -115,162 +117,14 @@
       transform: translateX(-3px);
     }
     .btn-home:active { transform: scale(0.97); }
-
-    .last-result-wrap {
-      display: flex; align-items: center; gap: 1rem;
-      background: var(--bg2); border-radius: var(--radius);
-      border: 0.5px solid var(--border); padding: 12px 16px;
-      margin-bottom: 0.75rem;
-    }
-    .last-result-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; flex-shrink: 0; }
-    .recent-seq { display: flex; flex-wrap: wrap; gap: 4px; }
-    .coin-chip { font-size: 12px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--bg3); color: var(--text2); }
-    .metric-formula { font-size: 10px; color: var(--text3); margin-top: 3px; font-style: italic; }
-
-    .theme-toggle {
-      position: fixed;
-      top: 14px;
-      right: 16px;
-      z-index: 100;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 0.5px solid var(--border2);
-      background: var(--bg2);
-      color: var(--text2);
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, transform 0.15s;
-      font-family: inherit;
-    }
-    .theme-toggle:hover { background: var(--bg3); transform: scale(1.08); }
-
-    /* ── GEEK THEME ── */
-    body.geek {
-      --bg:      #1a1b2e;
-      --bg2:     #24253a;
-      --bg3:     #2d2e4a;
-      --text:    #c0caf5;
-      --text2:   #9aa5ce;
-      --text3:   #565f89;
-      --border:  rgba(122,162,247,0.18);
-      --border2: rgba(187,154,247,0.32);
-      --info-bg: rgba(122,162,247,0.12);
-      --info-text: #7aa2f7;
-      --accent:  #bb9af7;
-      --dot:     rgba(122,162,247,0.07);
-      --footer:  rgba(192,202,245,0.3);
-      --footer-link: rgba(122,162,247,0.7);
-    }
-    body.geek .card {
-      border-color: rgba(122,162,247,0.2);
-      box-shadow: 0 0 0 1px rgba(187,154,247,0.07), 0 8px 32px rgba(13,14,23,0.6);
-    }
-    body.geek .metric-value {
-      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
-      letter-spacing: -0.02em;
-    }
-    body.geek .progress-bar { background: linear-gradient(90deg, #7aa2f7, #bb9af7); }
-    body.geek button:not(.reset):not(.theme-toggle) {
-      border-color: rgba(122,162,247,0.28);
-    }
-    body.geek button:not(.reset):not(.theme-toggle):hover {
-      border-color: rgba(187,154,247,0.5);
-      box-shadow: 0 0 10px rgba(187,154,247,0.18);
-    }
-    body.geek button.reset { background: #7c3a3a; border-color: #a84040; }
-    body.geek button.reset:hover { background: #a84040; }
-    body.geek .tag { background: rgba(122,162,247,0.14); color: #7aa2f7; }
-    body.geek .btn-home { border-color: rgba(122,162,247,0.28); }
-    body.geek .btn-home:hover { box-shadow: 0 0 8px rgba(187,154,247,0.15); }
-    /* Index specific */
-    body.geek a.btn { border-color: rgba(122,162,247,0.22); }
-    body.geek a.btn:hover {
-      border-color: rgba(187,154,247,0.45);
-      box-shadow: 0 0 14px rgba(187,154,247,0.12);
-    }
-    body.geek .title em { color: #bb9af7; }
-    body.geek footer a:hover { color: #bb9af7; border-bottom-color: #bb9af7; }
-
-    /* ── Mobile tap zones ── */
-    @media (max-width: 600px) {
-      button { min-height: 44px; padding: 10px 14px; font-size: 14px; }
-    }
-
-    /* ── Reveal & Export buttons ── */
-    .btn-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
-    .btn-reveal, .btn-export {
-      padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
-      border-radius: var(--radius); font-family: inherit;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .btn-reveal {
-      background: var(--bg2);
-      border: 0.5px solid var(--border2);
-      color: var(--text2);
-    }
-    .btn-reveal:hover { background: var(--bg3); color: var(--text); }
-    .btn-reveal.active { border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
-    .btn-export {
-      background: var(--bg2);
-      border: 0.5px solid var(--border2);
-      color: var(--text2);
-    }
-    .btn-export:hover { background: var(--bg3); color: var(--text); }
-
-    /* ── Reveal panel ── */
-    .reveal-panel {
-      background: var(--bg2);
-      border: 1px solid rgba(226,75,74,0.3);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-top: 0.75rem;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-    .reveal-title { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #E24B4A; margin-bottom: 10px; }
-    .reveal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
-    .reveal-item { background: var(--bg); border-radius: 6px; padding: 7px 10px; }
-    .reveal-item .ri-label { font-size: 11px; color: var(--text3); }
-    .reveal-item .ri-val { font-size: 15px; font-weight: 600; color: var(--text); }
-    .reveal-item .ri-frac { font-size: 11px; color: var(--text3); margin-top: 1px; }
-
-    .btn-reveal-wrap { margin-bottom: 0.75rem; }
   </style>
-<script>
-  (function() {
-    const saved = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved || (prefersDark ? 'dark' : 'light');
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
-    document.addEventListener('DOMContentLoaded', () => {
-      if (theme !== 'light') document.body.classList.add(theme);
-      const btn = document.querySelector('.theme-toggle');
-      if (btn) btn.textContent = icons[theme] || '🌙';
-    });
-  })();
-  function toggleTheme() {
-    const b = document.body;
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
-    let next;
-    if (b.classList.contains('dark'))      { b.classList.replace('dark','geek'); next='geek'; }
-    else if (b.classList.contains('geek')) { b.classList.remove('geek');          next='light'; }
-    else                                   { b.classList.add('dark');             next='dark'; }
-    localStorage.setItem('theme', next);
-    document.querySelector('.theme-toggle').textContent = icons[next];
-  }
-</script>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
 <div class="card">
   <a href="index.html" class="btn-home">← Accueil</a>
-  <h1>Simulateur de lancer de pièce équilibrée</h1>
+  <h1>Simulateur de lancer de pièce</h1>
   <p class="subtitle">
-    Lancez la pièce et observez l'évolution des fréquences de chaque côté - vers quelle valeur semblent-elles se stabiliser ?
+    Lancez la pièce et observez l'évolution des fréquences — vers quelle valeur semblent-elles se stabiliser ?
   </p>
 
   <div class="btn-group">
@@ -298,11 +152,6 @@
     </div>
   </div>
 
-  <div class="last-result-wrap" id="last-result-wrap" hidden>
-    <div class="last-result-label">Derniers résultats</div>
-    <div class="recent-seq" id="recent-seq"></div>
-  </div>
-
   <div class="metric-grid">
     <div class="metric">
       <div class="metric-label">Total lancers</div>
@@ -314,61 +163,40 @@
       <div class="metric-sub" id="stat-ecart-sub"></div>
     </div>
     <div class="metric">
-      <div class="metric-label">Issue la + fréquente</div>
+      <div class="metric-label">Face la + fréquente</div>
       <div class="metric-value" id="stat-max">—</div>
       <div class="metric-sub" id="stat-max-sub"></div>
     </div>
     <div class="metric">
-      <div class="metric-label">Issue la − fréquente</div>
+      <div class="metric-label">Face la − fréquente</div>
       <div class="metric-value" id="stat-min">—</div>
       <div class="metric-sub" id="stat-min-sub"></div>
     </div>
   </div>
+
   <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
-  <div class="progress-label">Convergence - barre pleine = fréquences à ±0,1 % de la valeur théorique</div>
+  <div class="progress-label">Convergence — barre pleine = fréquences à ±0,1 % de la valeur théorique</div>
 
   <div class="chart-wrap">
     <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences de Pile et Face">Fréquences de Pile et Face.</canvas>
   </div>
 
-  <div class="btn-actions" style="margin-top:0.75rem;">
-    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">Voir les probabilités théoriques</button>
-    <button class="btn-export" onclick="exportCSV()" id="btn-export" disabled>⬇ Exporter en CSV</button>
-  </div>
-
-      <div class="reveal-panel" id="reveal-panel" hidden>
-    <div class="reveal-title">Probabilités théoriques - pièce équilibrée</div>
-    <div class="reveal-grid">
-      <div class="reveal-item"><div class="ri-label">PILE</div><div class="ri-val">50 %</div><div class="ri-frac">= 1/2</div></div>
-      <div class="reveal-item"><div class="ri-label">FACE</div><div class="ri-val">50 %</div><div class="ri-frac">= 1/2</div></div>
-    </div>
-  </div>
-
   <div class="history-section" id="history-wrap" hidden>
     <hr class="divider">
-    <div class="history-title">Historique des séries</div>
+    <div class="history-title">Historique des sessions</div>
     <div id="history"></div>
   </div>
 
-  <footer>Simulateur de lancer de pièce équilibrée  -  Bug ou suggestion ? <a href="mailto:pro.louislagon@gmail.com" style="color:var(--text3);text-underline-offset:3px;">pro.louislagon@gmail.com</a></footer>
+  <footer>Simulateur de lancer de pièce &nbsp;·&nbsp; Bug ou suggestion ? <a href="mailto:pro.louislagon@gmail.com" style="color:var(--text3);text-underline-offset:3px;">pro.louislagon@gmail.com</a></footer>
 </div>
 
 <script>
   const THEORIC = 0.5;
-  // Escape exits geek mode
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.body.classList.contains('geek')) {
-      document.body.classList.remove('geek');
-      localStorage.setItem('theme', 'light');
-      document.querySelector('.theme-toggle').textContent = '☀️';
-    }
-  });
-
   let counts = [0, 0];
   let total = 0;
   let history = [];
   const labels = ['🪙 Pile', '✨ Face'];
-  const isDark = () => document.body.classList.contains('dark');
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   const ctx = document.getElementById('mainChart').getContext('2d');
   const chart = new Chart(ctx, {
@@ -419,7 +247,7 @@
         y: {
           min: 0, max: 0.7,
           ticks: { callback: v => (v*100).toFixed(0) + ' %', font: { size: 12 }, color: '#888780' },
-          grid: { color: isDark() ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }
+          grid: { color: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }
         },
         x: {
           ticks: { font: { size: 16 }, color: '#888780' },
@@ -429,75 +257,60 @@
     }
   });
 
-  const ceil5 = v => Math.ceil(v * 100 / 5) * 5 / 100;
-
   function rollBatch(n) {
     const c = [0, 0];
-    const seq = [];
-    for (let i = 0; i < n; i++) {
-      const r = Math.floor(Math.random() * 2);
-      c[r]++; seq.push(r);
-    }
-    return { c, seq };
+    for (let i = 0; i < n; i++) c[Math.floor(Math.random() * 2)]++;
+    return c;
   }
 
   function lancer(n) {
-    counts = [0, 0]; total = 0;
-    const { c, seq } = rollBatch(n);
-    counts[0] += c[0]; counts[1] += c[1];
+    const batch = rollBatch(n);
+    counts[0] += batch[0]; counts[1] += batch[1];
     total += n;
-
-    document.getElementById('last-result-wrap').hidden = false;
-    const names = ['PILE','FACE'];
-    const colors = ['#b8860b','#555'];
-    document.getElementById('recent-seq').innerHTML = n <= 20
-      ? seq.map(r => `<span class="coin-chip" style="color:${colors[r]}">${names[r]}</span>`).join('')
-      : `<span style="font-size:12px;color:var(--text3);">${n.toLocaleString('fr-FR')} résultats</span>`;
-
     updateUI(n);
   }
 
   function updateUI(lancés) {
     const freqs = counts.map(c => c / total);
     chart.data.datasets[0].data = freqs;
-    chart.options.scales.y.max = ceil5(Math.max(...freqs, 0.55));
+    const maxY = Math.max(...freqs, 0.7);
+    chart.options.scales.y.max = Math.min(maxY * 1.1 + 0.02, 0.95);
     chart.update();
 
     document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
     document.getElementById('pile-count').textContent = counts[0].toLocaleString('fr-FR');
-    document.getElementById('pile-pct').textContent = (freqs[0]*100).toFixed(2) + ' %';
+    document.getElementById('pile-pct').textContent = total ? (freqs[0]*100).toFixed(2) + ' %' : '—';
     document.getElementById('face-count').textContent = counts[1].toLocaleString('fr-FR');
-    document.getElementById('face-pct').textContent = (freqs[1]*100).toFixed(2) + ' %';
+    document.getElementById('face-pct').textContent = total ? (freqs[1]*100).toFixed(2) + ' %' : '—';
 
     const ecarts = freqs.map(f => Math.abs(f - THEORIC));
     const maxEcart = Math.max(...ecarts);
     document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
     document.getElementById('stat-ecart-sub').textContent =
-      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % - excellente convergence' : '';
+      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % — excellente convergence' : '';
 
     const maxIdx = freqs[0] >= freqs[1] ? 0 : 1;
     const minIdx = 1 - maxIdx;
     const names = ['Pile', 'Face'];
     document.getElementById('stat-max').textContent = names[maxIdx];
-    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % - ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % — ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
     document.getElementById('stat-min').textContent = names[minIdx];
-    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % - ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % — ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
 
     const allClose = ecarts.every(e => e < 0.001);
     const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.5) * 100)));
     document.getElementById('conv-bar').style.width = pct + '%';
 
-    history.push({ n: lancés, ecart: (maxEcart*100).toFixed(2) });
+    history.push({ n: lancés, total, ecart: (maxEcart*100).toFixed(2) });
     renderHistory();
-    document.getElementById('btn-export').disabled = false;
   }
 
   function renderHistory() {
     const wrap = document.getElementById('history-wrap');
-    const div  = document.getElementById('history');
+    const div = document.getElementById('history');
     wrap.hidden = history.length === 0;
     div.innerHTML = history.slice(-6).reverse().map(h =>
-      `<div class="history-row">${h.n.toLocaleString('fr-FR')} lancers  -  écart max <span class="tag">${h.ecart} %</span></div>`
+      `<div class="history-row">+${h.n.toLocaleString('fr-FR')} lancers → total ${h.total.toLocaleString('fr-FR')} &nbsp;·&nbsp; écart max <span class="tag">${h.ecart} %</span></div>`
     ).join('');
   }
 
@@ -513,32 +326,7 @@
     document.getElementById('pile-pct').textContent = '—';
     document.getElementById('face-pct').textContent = '—';
     document.getElementById('conv-bar').style.width = '0%';
-    document.getElementById('last-result-wrap').hidden = true;
-    document.getElementById('recent-seq').innerHTML = '';
-    document.getElementById('btn-export').disabled = true;
     renderHistory();
-  }
-
-  function toggleReveal() {
-    const panel = document.getElementById('reveal-panel');
-    const btn   = document.getElementById('btn-reveal');
-    panel.hidden = !panel.hidden;
-    btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
-  }
-
-  function exportCSV() {
-    if (!total) return;
-    const freqs = counts.map(c => c / total);
-    let csv = 'Issue;Occurrences\n';
-    [['Pile',0],['Face',1]].forEach(([name,i]) => {
-      csv += `${name};${counts[i]}\n`;
-    });
-    
-    csv = 'sep=;\n' + csv;
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `piece_${total}_lancers.csv`; a.click();
   }
 </script>
 </body>

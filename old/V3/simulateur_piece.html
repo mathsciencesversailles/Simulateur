@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulateur de lancer de deux dés</title>
+  <title>Simulateur de lancer de pièce</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,7 +29,7 @@
     .card {
       background: var(--bg); border-radius: var(--radius-lg);
       border: 0.5px solid var(--border); padding: 2rem;
-      width: 100%; max-width: 800px;
+      width: 100%; max-width: 720px;
     }
     h1 { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
     .subtitle { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; line-height: 1.6; }
@@ -57,7 +57,7 @@
     .progress-label { font-size: 11px; color: var(--text3); margin-bottom: 1.2rem; }
     .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text2); margin-bottom: 8px; align-items: center; }
     .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
-    .chart-wrap { position: relative; width: 100%; height: 340px; }
+    .chart-wrap { position: relative; width: 100%; height: 300px; }
     .history-section { margin-top: 1.2rem; font-size: 12px; color: var(--text3); }
     .history-title { font-weight: 500; color: var(--text2); margin-bottom: 6px; }
     .history-row { padding: 5px 0; border-bottom: 0.5px solid var(--border); line-height: 1.5; }
@@ -65,23 +65,17 @@
     .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0; }
     footer { margin-top: 1.5rem; font-size: 11px; color: var(--text3); text-align: center; }
 
-    .dice-visual {
-      display: flex; align-items: center; justify-content: center;
-      gap: 12px; margin-bottom: 1.5rem;
-      padding: 16px; background: var(--bg2); border-radius: var(--radius);
-      border: 0.5px solid var(--border);
+    .coin-display {
+      display: flex; justify-content: center; margin-bottom: 1.5rem; gap: 2rem;
     }
-    .die {
-      font-size: 36px; transition: opacity 0.2s;
+    .coin-face {
+      background: var(--bg2); border-radius: var(--radius); padding: 16px 24px;
+      text-align: center; border: 0.5px solid var(--border); min-width: 100px;
     }
-    .plus-sign { font-size: 20px; color: var(--text3); font-weight: 500; }
-    .equals-sign { font-size: 20px; color: var(--text3); font-weight: 500; }
-    .sum-display {
-      font-size: 28px; font-weight: 500; color: var(--text);
-      min-width: 48px; text-align: center;
-      background: var(--bg); border-radius: var(--radius);
-      border: 0.5px solid var(--border2); padding: 4px 12px;
-    }
+    .coin-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
+    .coin-name { font-size: 13px; font-weight: 500; color: var(--text2); }
+    .coin-count { font-size: 20px; font-weight: 500; color: var(--text); }
+    .coin-pct { font-size: 11px; color: var(--text3); }
 
     @media (max-width: 480px) {
       body { padding: 0.5rem; }
@@ -94,10 +88,10 @@
       .metric { padding: 10px 12px; }
       .metric-value { font-size: 18px; }
       .metric-label { font-size: 11px; }
-      .chart-wrap { height: 260px; }
-      .dice-visual { padding: 12px; gap: 8px; }
-      .die { font-size: 28px; }
-      .sum-display { font-size: 22px; padding: 4px 8px; }
+      .chart-wrap { height: 220px; }
+      .coin-display { gap: 1rem; }
+      .coin-face { padding: 12px 16px; }
+      .coin-emoji { font-size: 26px; }
     }
 
     .btn-home {
@@ -121,12 +115,17 @@
       transform: translateX(-3px);
     }
     .btn-home:active { transform: scale(0.97); }
-    .last-result-wrap { display:flex; align-items:center; gap:1rem; background:var(--bg2); border-radius:var(--radius); border:0.5px solid var(--border); padding:12px 16px; margin-bottom:0.75rem; }
-    .last-result-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.08em; font-weight:500; flex-shrink:0; }
-    .recent-seq { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-    .sum-chip { display:inline-flex; align-items:center; gap:3px; font-size:12px; font-weight:600; padding:3px 8px; border-radius:6px; background:var(--bg3); color:var(--text2); border: 0.5px solid var(--border); }
-    .sum-chip .dice-pair { font-size:1rem; letter-spacing:-2px; }
-    .sum-chip .sum-val { font-size:13px; font-weight:700; color:var(--text); }
+
+    .last-result-wrap {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--bg2); border-radius: var(--radius);
+      border: 0.5px solid var(--border); padding: 12px 16px;
+      margin-bottom: 0.75rem;
+    }
+    .last-result-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; flex-shrink: 0; }
+    .recent-seq { display: flex; flex-wrap: wrap; gap: 4px; }
+    .coin-chip { font-size: 12px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--bg3); color: var(--text2); }
+    .metric-formula { font-size: 10px; color: var(--text3); margin-top: 3px; font-style: italic; }
 
     .theme-toggle {
       position: fixed;
@@ -209,12 +208,12 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .btn-reveal {
-      background: var(--bg2);
-      border: 0.5px solid var(--border2);
+      background: transparent;
+      border: 1px dashed var(--border2);
       color: var(--text2);
     }
-    .btn-reveal:hover { background: var(--bg3); color: var(--text); }
-    .btn-reveal.active { border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
+    .btn-reveal:hover { background: var(--bg2); color: var(--text); }
+    .btn-reveal.active { border-style: solid; border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
     .btn-export {
       background: var(--bg2);
       border: 0.5px solid var(--border2);
@@ -246,7 +245,7 @@
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = saved || (prefersDark ? 'dark' : 'light');
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     document.addEventListener('DOMContentLoaded', () => {
       if (theme !== 'light') document.body.classList.add(theme);
       const btn = document.querySelector('.theme-toggle');
@@ -255,7 +254,7 @@
   })();
   function toggleTheme() {
     const b = document.body;
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     let next;
     if (b.classList.contains('dark'))      { b.classList.replace('dark','geek'); next='geek'; }
     else if (b.classList.contains('geek')) { b.classList.remove('geek');          next='light'; }
@@ -263,37 +262,15 @@
     localStorage.setItem('theme', next);
     document.querySelector('.theme-toggle').textContent = icons[next];
   }
-  function toggleReveal() {
-    const panel = document.getElementById('reveal-panel');
-    const btn   = document.getElementById('btn-reveal');
-    panel.hidden = !panel.hidden;
-    btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
-  }
-
-  function exportCSV() {
-    if (!total) return;
-    const freqs = counts.map(c => c / total);
-    let csv = 'Somme;Occurrences\n';
-    const numer = [1,2,3,4,5,6,5,4,3,2,1];
-    for (let i = 0; i < 11; i++) {
-      csv += `${i+2};${counts[i]}\n`;
-    }
-    
-    csv = 'sep=;\n' + csv;
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `deux_des_${total}_lancers.csv`; a.click();
-  }
 </script>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">🌙</button>
 <div class="card">
   <a href="index.html" class="btn-home">← Accueil</a>
-  <h1>Simulateur de lancer de 2 dés équilibrés</h1>
+  <h1>Simulateur de lancer de pièce équilibrée</h1>
   <p class="subtitle">
-    On lance deux dés et on observe leur somme. Vers quelles valeurs les fréquences semblent-elles se stabiliser ?
+    Lancez la pièce et observez l'évolution des fréquences de chaque côté — vers quelle valeur semblent-elles se stabiliser ?
   </p>
 
   <div class="btn-group">
@@ -306,8 +283,23 @@
     <button class="reset" onclick="reset()">Réinitialiser</button>
   </div>
 
+  <div class="coin-display">
+    <div class="coin-face">
+      <span class="coin-emoji" style="font-size:28px;font-weight:700;color:#b8860b;">PILE</span>
+      <div class="coin-name">Pile</div>
+      <div class="coin-count" id="pile-count">0</div>
+      <div class="coin-pct" id="pile-pct">—</div>
+    </div>
+    <div class="coin-face">
+      <span class="coin-emoji" style="font-size:28px;font-weight:700;color:#555;">FACE</span>
+      <div class="coin-name">Face</div>
+      <div class="coin-count" id="face-count">0</div>
+      <div class="coin-pct" id="face-pct">—</div>
+    </div>
+  </div>
+
   <div class="last-result-wrap" id="last-result-wrap" hidden>
-    <div class="last-result-label">Résultats obtenus</div>
+    <div class="last-result-label">Derniers résultats</div>
     <div class="recent-seq" id="recent-seq"></div>
   </div>
 
@@ -322,42 +314,43 @@
       <div class="metric-sub" id="stat-ecart-sub"></div>
     </div>
     <div class="metric">
-      <div class="metric-label">Somme la + fréquente</div>
+      <div class="metric-label">Issue la + fréquente</div>
       <div class="metric-value" id="stat-max">—</div>
       <div class="metric-sub" id="stat-max-sub"></div>
     </div>
     <div class="metric">
-      <div class="metric-label">Somme la − fréquente</div>
+      <div class="metric-label">Issue la − fréquente</div>
       <div class="metric-value" id="stat-min">—</div>
       <div class="metric-sub" id="stat-min-sub"></div>
     </div>
   </div>
+
+  <div class="btn-reveal-wrap"><button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button></div>
+  <div class="reveal-panel" id="reveal-panel" hidden>
+    <div class="reveal-title">Probabilités théoriques — pièce équilibrée</div>
+    <div class="reveal-grid">
+      <div class="reveal-item"><div class="ri-label">PILE</div><div class="ri-val">50 %</div><div class="ri-frac">= 1/2</div></div>
+      <div class="reveal-item"><div class="ri-label">FACE</div><div class="ri-val">50 %</div><div class="ri-frac">= 1/2</div></div>
+    </div>
+  </div>
+
   <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
-  <div class="progress-label">Convergence - barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
+  <div class="progress-label">Convergence — barre pleine = fréquences à ±0,1 % de la valeur théorique</div>
 
   <div class="chart-wrap">
-    <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences observées pour chaque somme de deux dés">Fréquences des sommes de 2 à 12.</canvas>
+    <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences de Pile et Face">Fréquences de Pile et Face.</canvas>
   </div>
 
   <div class="btn-actions" style="margin-top:0.75rem;">
-    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">Voir les probabilités théoriques</button>
+    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button>
     <button class="btn-export" onclick="exportCSV()" id="btn-export" disabled>⬇ Exporter en CSV</button>
   </div>
 
-    <div class="reveal-panel" id="reveal-panel" hidden>
-    <div class="reveal-title">Probabilités théoriques - somme de deux dés</div>
+      <div class="reveal-panel" id="reveal-panel" hidden>
+    <div class="reveal-title">Probabilités théoriques — pièce équilibrée</div>
     <div class="reveal-grid">
-      <div class="reveal-item"><div class="ri-label">Somme 2</div><div class="ri-val">2,78 %</div><div class="ri-frac">= 1/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 3</div><div class="ri-val">5,56 %</div><div class="ri-frac">= 2/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 4</div><div class="ri-val">8,33 %</div><div class="ri-frac">= 3/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 5</div><div class="ri-val">11,11 %</div><div class="ri-frac">= 4/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 6</div><div class="ri-val">13,89 %</div><div class="ri-frac">= 5/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 7</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 6/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 8</div><div class="ri-val">13,89 %</div><div class="ri-frac">= 5/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 9</div><div class="ri-val">11,11 %</div><div class="ri-frac">= 4/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 10</div><div class="ri-val">8,33 %</div><div class="ri-frac">= 3/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 11</div><div class="ri-val">5,56 %</div><div class="ri-frac">= 2/36</div></div>
-      <div class="reveal-item"><div class="ri-label">Somme 12</div><div class="ri-val">2,78 %</div><div class="ri-frac">= 1/36</div></div>
+      <div class="reveal-item"><div class="ri-label">PILE</div><div class="ri-val">50 %</div><div class="ri-frac">= 1/2</div></div>
+      <div class="reveal-item"><div class="ri-label">FACE</div><div class="ri-val">50 %</div><div class="ri-frac">= 1/2</div></div>
     </div>
   </div>
 
@@ -367,77 +360,44 @@
     <div id="history"></div>
   </div>
 
-  <footer>Simulateur de lancer de 2 dés équilibrés  -  Bug ou suggestion ? <a href="mailto:pro.louislagon@gmail.com" style="color:var(--text3);text-underline-offset:3px;">pro.louislagon@gmail.com</a></footer>
+  <footer>Simulateur de lancer de pièce équilibrée  -  Bug ou suggestion ? <a href="mailto:pro.louislagon@gmail.com" style="color:var(--text3);text-underline-offset:3px;">pro.louislagon@gmail.com</a></footer>
 </div>
 
 <script>
-  const THEORICS = [1,2,3,4,5,6,5,4,3,2,1].map(n => n/36);
-  const LABELS   = ['2','3','4','5','6','7','8','9','10','11','12'];
-  const FACES    = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-
-  // Escape exits geek mode
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.body.classList.contains('geek')) {
-      document.body.classList.remove('geek');
-      localStorage.setItem('theme', 'light');
-      document.querySelector('.theme-toggle').textContent = '☀️';
-    }
-  });
-
-  let counts = new Array(11).fill(0);
-  let total  = 0;
+  const THEORIC = 0.5;
+  let counts = [0, 0];
+  let total = 0;
   let history = [];
+  const labels = ['🪙 Pile', '✨ Face'];
   const isDark = () => document.body.classList.contains('dark');
-
-  let showTheoretical = true;
-
-  // Plugin: draw dashed step outline using scale tick positions (bar.width is slot width, not bar width)
-  const stepsPlugin = {
-    id: 'stepsPlugin',
-    afterDatasetsDraw(chart) {
-
-      const xScale = chart.scales.x;
-      const yScale = chart.scales.y;
-      const n = THEORICS.length;
-      if (!xScale || xScale.ticks.length < 2) return;
-      const halfSlot = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) / 2;
-      const cCtx = chart.ctx;
-      cCtx.save();
-      cCtx.strokeStyle = '#E24B4A';
-      cCtx.lineWidth = 2;
-      cCtx.setLineDash([6, 4]);
-      cCtx.beginPath();
-      for (let i = 0; i < n; i++) {
-        const cx = xScale.getPixelForTick(i);
-        const x1 = cx - halfSlot;
-        const x2 = cx + halfSlot;
-        const y  = yScale.getPixelForValue(THEORICS[i]);
-        if (i === 0) cCtx.moveTo(x1, y); else cCtx.lineTo(x1, y);
-        cCtx.lineTo(x2, y);
-        if (i < n - 1) cCtx.lineTo(x2, yScale.getPixelForValue(THEORICS[i + 1]));
-      }
-      cCtx.stroke();
-      cCtx.restore();
-    }
-  };
-
-  const blueGradient = LABELS.map((_, i) => {
-    const t = 1 - Math.abs(i - 5) / 5;
-    return `rgba(55,138,221,${0.4 + t * 0.6})`;
-  });
 
   const ctx = document.getElementById('mainChart').getContext('2d');
   const chart = new Chart(ctx, {
     type: 'bar',
-    plugins: [stepsPlugin],
     data: {
-      labels: LABELS,
-      datasets: [{
-        label: 'Fréquence observée',
-        data: new Array(11).fill(0),
-        backgroundColor: blueGradient,
-        borderRadius: 4,
-      }]
+      labels,
+      datasets: [
+        {
+          label: 'Fréquence observée',
+          data: [0, 0],
+          backgroundColor: ['#378ADD', '#7F77DD'],
+          borderRadius: 6,
+          order: 1,
+        },
+        {
+          label: 'Probabilité théorique',
+          data: [THEORIC, THEORIC],
+          type: 'line',
+          borderColor: '#E24B4A',
+          backgroundColor: 'rgba(226,75,74,0.07)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          order: 0,
+          hidden: true,
+        }
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -447,55 +407,51 @@
         tooltip: {
           callbacks: {
             label: (c) => {
-              const f = c.parsed.y;
-              const n = Math.round(f * total);
-              return [`Fréq. : ${(f*100).toFixed(2)} %`, `Occurrences : ${n.toLocaleString('fr-FR')}`];
+              if (c.datasetIndex === 0) {
+                const f = c.parsed.y;
+                const n = Math.round(f * total);
+                return [`Fréq. : ${(f*100).toFixed(2)} %`, `Occurrences : ${n.toLocaleString('fr-FR')}`];
+              }
+              return 'Ligne théorique';
             }
           }
         }
       },
       scales: {
         y: {
-          min: 0, max: 0.20,
+          min: 0, max: 1,
           ticks: { callback: v => (v*100).toFixed(0) + ' %', font: { size: 12 }, color: '#888780' },
           grid: { color: isDark() ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }
         },
         x: {
-          ticks: { font: { size: 12 }, color: '#888780', autoSkip: false, maxRotation: 0 },
+          ticks: { font: { size: 16 }, color: '#888780' },
           grid: { display: false }
         }
       }
     }
   });
 
-  const ceil5 = v => Math.ceil(v * 100 / 5) * 5 / 100;
-
   function rollBatch(n) {
-    const c = new Array(11).fill(0);
+    const c = [0, 0];
     const seq = [];
-    let lastD1 = 0, lastD2 = 0;
     for (let i = 0; i < n; i++) {
-      lastD1 = Math.floor(Math.random() * 6);
-      lastD2 = Math.floor(Math.random() * 6);
-      c[lastD1 + lastD2]++;
-      seq.push([lastD1, lastD2]);
+      const r = Math.floor(Math.random() * 2);
+      c[r]++; seq.push(r);
     }
-    return { c, seq, lastD1, lastD2 };
+    return { c, seq };
   }
 
   function lancer(n) {
-    counts = new Array(11).fill(0); total = 0;
-    const { c, seq, lastD1, lastD2 } = rollBatch(n);
-    for (let i = 0; i < 11; i++) counts[i] += c[i];
+    counts = [0, 0]; total = 0;
+    const { c, seq } = rollBatch(n);
+    counts[0] += c[0]; counts[1] += c[1];
     total += n;
 
     document.getElementById('last-result-wrap').hidden = false;
+    const names = ['PILE','FACE'];
+    const colors = ['#b8860b','#555'];
     document.getElementById('recent-seq').innerHTML = n <= 20
-      ? seq.map(([d1, d2]) =>
-          `<span class="sum-chip">
-            <span class="dice-pair">${FACES[d1]}${FACES[d2]}</span>
-            <span class="sum-val">${d1+d2+2}</span>
-          </span>`).join('')
+      ? seq.map(r => `<span class="coin-chip" style="color:${colors[r]}">${names[r]}</span>`).join('')
       : `<span style="font-size:12px;color:var(--text3);">${n.toLocaleString('fr-FR')} résultats</span>`;
 
     updateUI(n);
@@ -504,25 +460,30 @@
   function updateUI(lancés) {
     const freqs = counts.map(c => c / total);
     chart.data.datasets[0].data = freqs;
-    chart.options.scales.y.max = ceil5(Math.max(...freqs, 0.15));
     chart.update();
 
     document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
-    const ecarts  = freqs.map((f, i) => Math.abs(f - THEORICS[i]));
+    document.getElementById('pile-count').textContent = counts[0].toLocaleString('fr-FR');
+    document.getElementById('pile-pct').textContent = (freqs[0]*100).toFixed(2) + ' %';
+    document.getElementById('face-count').textContent = counts[1].toLocaleString('fr-FR');
+    document.getElementById('face-pct').textContent = (freqs[1]*100).toFixed(2) + ' %';
+
+    const ecarts = freqs.map(f => Math.abs(f - THEORIC));
     const maxEcart = Math.max(...ecarts);
     document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
     document.getElementById('stat-ecart-sub').textContent =
-      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % - excellente convergence' : '';
+      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % — excellente convergence' : '';
 
-    const maxIdx = freqs.indexOf(Math.max(...freqs));
-    const minIdx = freqs.indexOf(Math.min(...freqs));
-    document.getElementById('stat-max').textContent = String(maxIdx + 2);
-    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % - ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
-    document.getElementById('stat-min').textContent = String(minIdx + 2);
-    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % - ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
+    const maxIdx = freqs[0] >= freqs[1] ? 0 : 1;
+    const minIdx = 1 - maxIdx;
+    const names = ['Pile', 'Face'];
+    document.getElementById('stat-max').textContent = names[maxIdx];
+    document.getElementById('stat-max-sub').textContent = (freqs[maxIdx]*100).toFixed(2) + ' % — ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-min').textContent = names[minIdx];
+    document.getElementById('stat-min-sub').textContent = (freqs[minIdx]*100).toFixed(2) + ' % — ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
 
     const allClose = ecarts.every(e => e < 0.001);
-    const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.2) * 100)));
+    const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.5) * 100)));
     document.getElementById('conv-bar').style.width = pct + '%';
 
     history.push({ n: lancés, ecart: (maxEcart*100).toFixed(2) });
@@ -540,39 +501,44 @@
   }
 
   function reset() {
-    counts = new Array(11).fill(0); total = 0; history = [];
-    chart.data.datasets[0].data = new Array(11).fill(0);
-    chart.options.scales.y.max = 0.20;
+    counts = [0, 0]; total = 0; history = [];
+    chart.data.datasets[0].data = [0, 0];
+    chart.options.scales.y.max = 1;
     chart.update('none');
     ['stat-total','stat-ecart','stat-max','stat-min'].forEach(id => document.getElementById(id).textContent = id === 'stat-total' ? '0' : '—');
     ['stat-ecart-sub','stat-max-sub','stat-min-sub'].forEach(id => document.getElementById(id).textContent = '');
+    document.getElementById('pile-count').textContent = '0';
+    document.getElementById('face-count').textContent = '0';
+    document.getElementById('pile-pct').textContent = '—';
+    document.getElementById('face-pct').textContent = '—';
     document.getElementById('conv-bar').style.width = '0%';
     document.getElementById('last-result-wrap').hidden = true;
     document.getElementById('recent-seq').innerHTML = '';
     document.getElementById('btn-export').disabled = true;
     renderHistory();
   }
+
   function toggleReveal() {
     const panel = document.getElementById('reveal-panel');
     const btn   = document.getElementById('btn-reveal');
     panel.hidden = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
+    btn.textContent = panel.hidden ? '🔍 Voir la probabilité théorique' : '🙈 Masquer';
+    chart.data.datasets[1].hidden = panel.hidden;
+    chart.update();
   }
 
   function exportCSV() {
     if (!total) return;
     const freqs = counts.map(c => c / total);
-    let csv = 'Somme;Occurrences\n';
-    const numer = [1,2,3,4,5,6,5,4,3,2,1];
-    for (let i = 0; i < 11; i++) {
-      csv += `${i+2};${counts[i]}\n`;
-    }
-    
-    csv = 'sep=;\n' + csv;
+    let csv = 'Issue,Occurrences,Fréquence observée (%),Probabilité théorique (%)\n';
+    [['Pile',0],['Face',1]].forEach(([name,i]) => {
+      csv += `${name},${counts[i]},${(freqs[i]*100).toFixed(4)},50.0000\n`;
+    });
+    csv += `Total,${total},100.0000,100.0000\n`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `deux_des_${total}_lancers.csv`; a.click();
+    a.download = `piece_${total}_lancers.csv`; a.click();
   }
 </script>
 </body>

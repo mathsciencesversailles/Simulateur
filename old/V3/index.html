@@ -206,41 +206,6 @@
     body.geek .title em { color: #bb9af7; }
     body.geek footer a:hover { color: #bb9af7; border-bottom-color: #bb9af7; }
 
-    /* ── Terminal easter egg ── */
-    #terminal-overlay {
-      position: fixed; inset: 0; z-index: 999;
-      background: rgba(10,10,18,0.97);
-      display: flex; align-items: center; justify-content: center;
-      animation: fadeIn 0.3s ease;
-    }
-    #terminal-box {
-      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-      font-size: clamp(12px, 2vw, 14px);
-      color: #c0caf5;
-      background: #1a1b2e;
-      border: 1px solid rgba(122,162,247,0.3);
-      border-radius: 12px;
-      padding: 2rem;
-      width: min(600px, 90vw);
-      box-shadow: 0 0 40px rgba(122,162,247,0.15);
-    }
-    #terminal-box .t-bar {
-      display: flex; gap: 6px; margin-bottom: 1.2rem;
-    }
-    #terminal-box .t-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-    }
-    #terminal-lines { min-height: 200px; }
-    #terminal-lines p { margin: 0; line-height: 1.8; }
-    #terminal-lines .t-cmd  { color: #7aa2f7; }
-    #terminal-lines .t-ok   { color: #9ece6a; }
-    #terminal-lines .t-warn { color: #e0af68; }
-    #terminal-lines .t-dim  { color: #565f89; }
-    #terminal-lines .t-hi   { color: #bb9af7; }
-    #terminal-cursor { display: inline-block; width: 9px; height: 15px; background: #7aa2f7; animation: blink 1s step-end infinite; vertical-align: middle; }
-    @keyframes blink { 50% { opacity: 0; } }
-    #terminal-hint { margin-top: 1.2rem; font-size: 11px; color: #565f89; text-align: right; }
-
     .btn-qr {
       padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
       border-radius: 8px; font-family: inherit;
@@ -257,7 +222,7 @@
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const theme = saved || (prefersDark ? 'dark' : 'light');
-      const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+      const icons = { light: '🌙', dark: '💻', geek: '>_' };
       // Apply class once body is available
       document.addEventListener('DOMContentLoaded', () => {
         if (theme !== 'light') document.body.classList.add(theme);
@@ -267,7 +232,7 @@
     })();
     function toggleTheme() {
       const b = document.body;
-      const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+      const icons = { light: '🌙', dark: '💻', geek: '>_' };
       let next;
       if (b.classList.contains('dark'))      { b.classList.replace('dark','geek'); next='geek'; }
       else if (b.classList.contains('geek')) { b.classList.remove('geek');          next='light'; }
@@ -278,9 +243,9 @@
   </script>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">🌙</button>
 
-  <h1 class="title" id="main-title">Simulateurs de <em>probabilités</em></h1>
+  <h1 class="title">Simulateurs de <em>probabilités</em></h1>
   <p class="sub">Choisissez une expérience aléatoire</p>
 
   <div class="buttons">
@@ -334,75 +299,6 @@
       });
       qrGenerated = true;
     }
-  }
-
-  // ── Escape : quitte le mode geek ou ferme le terminal ──────────────────────
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (document.getElementById('terminal-overlay')) { closeTerminal(); return; }
-      if (document.body.classList.contains('geek')) {
-        document.body.classList.remove('geek');
-        localStorage.setItem('theme', 'light');
-        document.querySelector('.theme-toggle').textContent = '☀️';
-      }
-    }
-  });
-
-  // ── Triple-clic sur le titre ───────────────────────────────────────────────
-  let clickCount = 0, clickTimer = null;
-  document.getElementById('main-title').addEventListener('click', () => {
-    clickCount++;
-    if (clickTimer) clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => { clickCount = 0; }, 500);
-    if (clickCount >= 3) { clickCount = 0; launchTerminal(); }
-  });
-
-  const BOOT_LINES = [
-    { text: '> Initialisation du simulateur...', cls: 't-cmd', delay: 0 },
-    { text: '> Chargement du générateur aléatoire... <span class="t-ok">OK</span>', cls: '', delay: 600 },
-    { text: '> Vérification des lois de probabilité...', cls: 't-cmd', delay: 1200 },
-    { text: '&nbsp;&nbsp;P(Face) = 1/2 = 0.5000', cls: 't-dim', delay: 1700 },
-    { text: '&nbsp;&nbsp;P(⚅) = 1/6 ≈ 0.1667', cls: 't-dim', delay: 2000 },
-    { text: '&nbsp;&nbsp;P(Somme=7) = 6/36 ≈ 0.1667', cls: 't-dim', delay: 2300 },
-    { text: '> Loi des grands nombres... <span class="t-ok">CONFIRMÉE</span>', cls: '', delay: 2800 },
-    { text: '> Biais de confirmation détectés chez l\'utilisateur... <span class="t-warn">IGNORÉS</span>', cls: '', delay: 3400 },
-    { text: '> π ≈ 3.14159265358979323846...', cls: 't-dim', delay: 4000 },
-    { text: '> e ≈ 2.71828182845904523536...', cls: 't-dim', delay: 4300 },
-    { text: '> Tout événement aléatoire finit par révéler sa loi.', cls: 't-hi', delay: 5000 },
-    { text: '> Bienvenue, expérimentateur. <span class="t-ok">■</span>', cls: '', delay: 5800 },
-  ];
-
-  function launchTerminal() {
-    const overlay = document.createElement('div');
-    overlay.id = 'terminal-overlay';
-    overlay.innerHTML = `
-      <div id="terminal-box">
-        <div class="t-bar">
-          <div class="t-dot" style="background:#ff5f57"></div>
-          <div class="t-dot" style="background:#febc2e"></div>
-          <div class="t-dot" style="background:#28c840"></div>
-        </div>
-        <div id="terminal-lines"></div>
-        <span id="terminal-cursor"></span>
-        <div id="terminal-hint">Appuyez sur Échap ou cliquez pour fermer</div>
-      </div>`;
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', closeTerminal);
-    const lines = document.getElementById('terminal-lines');
-    BOOT_LINES.forEach(({ text, cls, delay }) => {
-      setTimeout(() => {
-        if (!document.getElementById('terminal-overlay')) return;
-        const p = document.createElement('p');
-        if (cls) p.className = cls;
-        p.innerHTML = text;
-        lines.appendChild(p);
-      }, delay);
-    });
-  }
-
-  function closeTerminal() {
-    const el = document.getElementById('terminal-overlay');
-    if (el) el.remove();
   }
 </script>
 </html>

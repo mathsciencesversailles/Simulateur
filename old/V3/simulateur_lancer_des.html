@@ -341,12 +341,12 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .btn-reveal {
-      background: var(--bg2);
-      border: 0.5px solid var(--border2);
+      background: transparent;
+      border: 1px dashed var(--border2);
       color: var(--text2);
     }
-    .btn-reveal:hover { background: var(--bg3); color: var(--text); }
-    .btn-reveal.active { border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
+    .btn-reveal:hover { background: var(--bg2); color: var(--text); }
+    .btn-reveal.active { border-style: solid; border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
     .btn-export {
       background: var(--bg2);
       border: 0.5px solid var(--border2);
@@ -378,7 +378,7 @@
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = saved || (prefersDark ? 'dark' : 'light');
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     document.addEventListener('DOMContentLoaded', () => {
       if (theme !== 'light') document.body.classList.add(theme);
       const btn = document.querySelector('.theme-toggle');
@@ -387,7 +387,7 @@
   })();
   function toggleTheme() {
     const b = document.body;
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     let next;
     if (b.classList.contains('dark'))      { b.classList.replace('dark','geek'); next='geek'; }
     else if (b.classList.contains('geek')) { b.classList.remove('geek');          next='light'; }
@@ -398,12 +398,12 @@
 </script>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">🌙</button>
 <div class="card">
   <a href="index.html" class="btn-home">← Accueil</a>
   <h1>Simulateur de lancer de dés</h1>
   <p class="subtitle">
-    Lancez le dé et observez l'évolution des fréquences au fil des essais -
+    Lancez le dé et observez l'évolution des fréquences au fil des essais —
     vers quelle valeur semblent-elles se stabiliser ?
   </p>
 
@@ -443,10 +443,24 @@
       <div class="metric-sub" id="stat-min-sub"></div>
     </div>
   </div>
+
+  <div class="btn-reveal-wrap"><button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button></div>
+  <div class="reveal-panel" id="reveal-panel" hidden>
+    <div class="reveal-title">Probabilités théoriques — dé équilibré</div>
+    <div class="reveal-grid">
+      <div class="reveal-item"><div class="ri-label">⚀ Face 1</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
+      <div class="reveal-item"><div class="ri-label">⚁ Face 2</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
+      <div class="reveal-item"><div class="ri-label">⚂ Face 3</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
+      <div class="reveal-item"><div class="ri-label">⚃ Face 4</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
+      <div class="reveal-item"><div class="ri-label">⚄ Face 5</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
+      <div class="reveal-item"><div class="ri-label">⚅ Face 6</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
+    </div>
+  </div>
+
   <div class="progress-wrap">
     <div class="progress-bar" id="conv-bar"></div>
   </div>
-  <div class="progress-label">Convergence - barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
+  <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
 
   <div class="chart-wrap">
     <canvas id="diceChart" role="img" aria-label="Diagramme en barres des fréquences observées pour chaque face du dé">
@@ -455,12 +469,12 @@
   </div>
 
   <div class="btn-actions" style="margin-top:0.75rem;">
-    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">Voir les probabilités théoriques</button>
+    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button>
     <button class="btn-export" onclick="exportCSV()" id="btn-export" disabled>⬇ Exporter en CSV</button>
   </div>
 
     <div class="reveal-panel" id="reveal-panel" hidden>
-    <div class="reveal-title">Probabilités théoriques - dé équilibré</div>
+    <div class="reveal-title">Probabilités théoriques — dé équilibré</div>
     <div class="reveal-grid">
       <div class="reveal-item"><div class="ri-label">⚀ Face 1</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
       <div class="reveal-item"><div class="ri-label">⚁ Face 2</div><div class="ri-val">16,67 %</div><div class="ri-frac">= 1/6</div></div>
@@ -481,15 +495,6 @@
 </div>
 
 <script>
-  // Escape exits geek mode
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.body.classList.contains('geek')) {
-      document.body.classList.remove('geek');
-      localStorage.setItem('theme', 'light');
-      document.querySelector('.theme-toggle').textContent = '☀️';
-    }
-  });
-
   let counts = [0,0,0,0,0,0];
   let total = 0;
   let history = [];
@@ -521,6 +526,7 @@
           pointRadius: 0,
           fill: false,
           order: 0,
+          hidden: true,
         }
       ]
     },
@@ -546,7 +552,7 @@
       scales: {
         y: {
           min: 0,
-          max: 0.35,
+          max: 1,
           ticks: {
             callback: v => (v*100).toFixed(0) + ' %',
             font: { size: 12 },
@@ -563,8 +569,6 @@
   });
 
   const FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-
-  const ceil5 = v => Math.ceil(v * 100 / 5) * 5 / 100;
 
   function rollBatch(n) {
     const c = new Array(6).fill(0);
@@ -598,7 +602,6 @@
   function updateUI(lancés) {
     const freqs = counts.map(c => c / total);
     chart.data.datasets[0].data = freqs;
-    chart.options.scales.y.max = ceil5(Math.max(...freqs, 0.20));
     chart.update();
 
     document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
@@ -608,18 +611,18 @@
 
     document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
     document.getElementById('stat-ecart-sub').textContent =
-      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % - excellente convergence' : '';
+      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % — excellente convergence' : '';
 
     const maxIdx = freqs.indexOf(Math.max(...freqs));
     const minIdx = freqs.indexOf(Math.min(...freqs));
 
     document.getElementById('stat-max').textContent = FACES[maxIdx] + ' ' + (maxIdx+1);
     document.getElementById('stat-max-sub').textContent =
-      (freqs[maxIdx]*100).toFixed(2) + ' % - ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
+      (freqs[maxIdx]*100).toFixed(2) + ' % — ' + counts[maxIdx].toLocaleString('fr-FR') + ' fois';
 
     document.getElementById('stat-min').textContent = FACES[minIdx] + ' ' + (minIdx+1);
     document.getElementById('stat-min-sub').textContent =
-      (freqs[minIdx]*100).toFixed(2) + ' % - ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
+      (freqs[minIdx]*100).toFixed(2) + ' % — ' + counts[minIdx].toLocaleString('fr-FR') + ' fois';
 
     const allClose = ecarts.every(e => e < 0.001);
     const pct = allClose ? 100 : Math.max(0, Math.min(99, Math.round((1 - maxEcart / 0.5) * 100)));
@@ -643,7 +646,7 @@
     counts = [0,0,0,0,0,0];
     total = 0; history = [];
     chart.data.datasets[0].data = [0,0,0,0,0,0];
-    chart.options.scales.y.max = 0.35;
+    chart.options.scales.y.max = 1;
     chart.update('none');
     ['stat-total','stat-ecart','stat-max','stat-min'].forEach(id =>
       document.getElementById(id).textContent = '—');
@@ -661,19 +664,20 @@
     const btn   = document.getElementById('btn-reveal');
     panel.hidden = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
+    btn.textContent = panel.hidden ? '🔍 Voir la probabilité théorique' : '🙈 Masquer';
+    chart.data.datasets[1].hidden = panel.hidden;
+    chart.update();
   }
 
   function exportCSV() {
     if (!total) return;
     const faces = ['1','2','3','4','5','6'];
     const freqs = counts.map(c => c / total);
-    let csv = 'Face;Occurrences\n';
+    let csv = 'Face,Occurrences,Fréquence observée (%),Probabilité théorique (%)\n';
     for (let i = 0; i < 6; i++) {
-      csv += `${i+1};${counts[i]}\n`;
+      csv += `${faces[i]},${counts[i]},${(freqs[i]*100).toFixed(4)},${(THEORIC*100).toFixed(4)}\n`;
     }
-    
-    csv = 'sep=;\n' + csv;
+    csv += `Total,${total},100.0000,100.0000\n`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = `des_${total}_lancers.csv`; a.click();

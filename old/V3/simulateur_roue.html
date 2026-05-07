@@ -246,12 +246,12 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .btn-reveal {
-      background: var(--bg2);
-      border: 0.5px solid var(--border2);
+      background: transparent;
+      border: 1px dashed var(--border2);
       color: var(--text2);
     }
-    .btn-reveal:hover { background: var(--bg3); color: var(--text); }
-    .btn-reveal.active { border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
+    .btn-reveal:hover { background: var(--bg2); color: var(--text); }
+    .btn-reveal.active { border-style: solid; border-color: #E24B4A; color: #E24B4A; background: rgba(226,75,74,0.06); }
     .btn-export {
       background: var(--bg2);
       border: 0.5px solid var(--border2);
@@ -283,7 +283,7 @@
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = saved || (prefersDark ? 'dark' : 'light');
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     document.addEventListener('DOMContentLoaded', () => {
       if (theme !== 'light') document.body.classList.add(theme);
       const btn = document.querySelector('.theme-toggle');
@@ -292,7 +292,7 @@
   })();
   function toggleTheme() {
     const b = document.body;
-    const icons = { light: '☀️', dark: '🌙', geek: '>_' };
+    const icons = { light: '🌙', dark: '💻', geek: '>_' };
     let next;
     if (b.classList.contains('dark'))      { b.classList.replace('dark','geek'); next='geek'; }
     else if (b.classList.contains('geek')) { b.classList.remove('geek');          next='light'; }
@@ -304,8 +304,9 @@
     const panel = document.getElementById('reveal-panel');
     const btn   = document.getElementById('btn-reveal');
     panel.hidden = !panel.hidden;
+    showTheoretical = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
+    btn.textContent = panel.hidden ? '🔍 Voir la probabilité théorique' : '🙈 Masquer';
     if (!panel.hidden) updateRevealGrid();
     chart.update();
   }
@@ -326,14 +327,13 @@
     const t = totalSectors();
     const active = COLORS.filter(c => c.count > 0);
     const idxMap = active.map(c => COLORS.indexOf(c));
-    let csv = 'Couleur;Occurrences\n';
+    let csv = 'Couleur,Secteurs,Occurrences,Fréquence observée (%),Probabilité théorique (%)\n';
     idxMap.forEach((ci, j) => {
       const f = counts[ci] / total;
       const th = COLORS[ci].count / t;
-      csv += `${COLORS[ci].name};${counts[ci]}\n`;
+      csv += `${COLORS[ci].name},${COLORS[ci].count},${counts[ci]},${(f*100).toFixed(4)},${(th*100).toFixed(4)}\n`;
     });
-    
-    csv = 'sep=;\n' + csv;
+    csv += `Total,${t},${total},100.0000,100.0000\n`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = `roue_${total}_tours.csv`; a.click();
@@ -341,12 +341,12 @@
 </script>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">🌙</button>
 <div class="card">
   <a href="index.html" class="btn-home">← Accueil</a>
   <h1>Simulateur de roue</h1>
   <p class="subtitle">
-    Configurez le nombre de secteurs de chaque couleur, puis lancez la roue - vers quelles valeurs les fréquences semblent-elles se stabiliser ?
+    Configurez le nombre de secteurs de chaque couleur, puis lancez la roue — vers quelles valeurs les fréquences semblent-elles se stabiliser ?
   </p>
 
   <div class="wheel-section">
@@ -400,19 +400,19 @@
   </div>
 
   <div class="progress-wrap"><div class="progress-bar" id="conv-bar"></div></div>
-  <div class="progress-label">Convergence - barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
+  <div class="progress-label">Convergence — barre pleine = toutes les fréquences à ±0,1 % de la valeur théorique</div>
 
   <div class="chart-wrap">
     <canvas id="mainChart" role="img" aria-label="Diagramme en barres des fréquences observées par couleur de la roue">Fréquences par couleur.</canvas>
   </div>
 
   <div class="btn-actions" style="margin-top:0.75rem;">
-    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">Voir les probabilités théoriques</button>
+    <button class="btn-reveal" id="btn-reveal" onclick="toggleReveal()">🔍 Voir la probabilité théorique</button>
     <button class="btn-export" onclick="exportCSV()" id="btn-export" disabled>⬇ Exporter en CSV</button>
   </div>
 
   <div class="reveal-panel" id="reveal-panel" hidden>
-    <div class="reveal-title">Probabilités théoriques - roue actuelle</div>
+    <div class="reveal-title">Probabilités théoriques — roue actuelle</div>
     <div class="reveal-grid" id="reveal-grid"></div>
   </div>
 
@@ -433,15 +433,6 @@
     { name: 'Bleu',   hex: '#378ADD', dark: '#0c3a6e', count: 0 },
     { name: 'Violet', hex: '#7F77DD', dark: '#2e2870', count: 0 },
   ];
-
-  // Escape exits geek mode
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.body.classList.contains('geek')) {
-      document.body.classList.remove('geek');
-      localStorage.setItem('theme', 'light');
-      document.querySelector('.theme-toggle').textContent = '☀️';
-    }
-  });
 
   let counts = new Array(5).fill(0);
   let total = 0;
@@ -553,13 +544,13 @@
   // Current theoretical values for the plugin (updated on every rebuildChart)
   let currentTh = [];
 
-  let showTheoretical = true;
+  let showTheoretical = false;
 
   // Plugin: draw dashed step outline using scale tick positions (bar.width is slot width, not bar width)
   const stepsPlugin = {
     id: 'stepsPlugin',
     afterDatasetsDraw(chart) {
-      if (!currentTh.length) return;
+      if (!currentTh.length || !showTheoretical) return;
       const xScale = chart.scales.x;
       const yScale = chart.scales.y;
       const n = currentTh.length;
@@ -616,7 +607,7 @@
       },
       scales: {
         y: {
-          min: 0, max: 0.6,
+          min: 0, max: 1,
           ticks: { callback: v => (v*100).toFixed(0) + ' %', font: { size: 12 }, color: '#888780' },
           grid: { color: isDark() ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)' }
         },
@@ -643,11 +634,8 @@
     chart.data.labels = chartData.labels;
     chart.data.datasets[0].backgroundColor = chartData.bgColors;
     chart.data.datasets[0].data = chartData.observedIdxMap.map(i => total > 0 ? counts[i] / total : 0);
-    chart.options.scales.y.max = Math.min(Math.max(...currentTh) * 1.3 + 0.02, 1.0);
     chart.update();
   }
-
-  const ceil5 = v => Math.ceil(v * 100 / 5) * 5 / 100;
 
   function spinBatch(n) {
     const t = totalSectors();
@@ -690,7 +678,6 @@
 
     const freqsByActive = chartData.observedIdxMap.map(i => total > 0 ? counts[i] / total : 0);
     chart.data.datasets[0].data = freqsByActive;
-    chart.options.scales.y.max = ceil5(Math.max(...freqsByActive, ...currentTh));
     chart.update();
 
     document.getElementById('stat-total').textContent = total.toLocaleString('fr-FR');
@@ -698,16 +685,16 @@
     const maxEcart = ecarts.length > 0 ? Math.max(...ecarts) : 0;
     document.getElementById('stat-ecart').textContent = (maxEcart*100).toFixed(2) + ' %';
     document.getElementById('stat-ecart-sub').textContent =
-      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % - excellente convergence' : '';
+      total >= 1000 && maxEcart < 0.001 ? '✓ < 0,1 % — excellente convergence' : '';
 
     const maxJ = freqsByActive.indexOf(Math.max(...freqsByActive));
     const minJ = freqsByActive.indexOf(Math.min(...freqsByActive));
     const maxCi = chartData.observedIdxMap[maxJ];
     const minCi = chartData.observedIdxMap[minJ];
     document.getElementById('stat-max').textContent = COLORS[maxCi].name;
-    document.getElementById('stat-max-sub').textContent = (freqsByActive[maxJ]*100).toFixed(2) + ' % - ' + counts[maxCi].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-max-sub').textContent = (freqsByActive[maxJ]*100).toFixed(2) + ' % — ' + counts[maxCi].toLocaleString('fr-FR') + ' fois';
     document.getElementById('stat-min').textContent = COLORS[minCi].name;
-    document.getElementById('stat-min-sub').textContent = (freqsByActive[minJ]*100).toFixed(2) + ' % - ' + counts[minCi].toLocaleString('fr-FR') + ' fois';
+    document.getElementById('stat-min-sub').textContent = (freqsByActive[minJ]*100).toFixed(2) + ' % — ' + counts[minCi].toLocaleString('fr-FR') + ' fois';
 
     const maxTheoric = Math.max(...currentTh);
     const allClose = ecarts.every(e => e < 0.001);
@@ -749,8 +736,9 @@
     const panel = document.getElementById('reveal-panel');
     const btn   = document.getElementById('btn-reveal');
     panel.hidden = !panel.hidden;
+    showTheoretical = !panel.hidden;
     btn.classList.toggle('active', !panel.hidden);
-    btn.textContent = panel.hidden ? 'Voir les probabilités théoriques' : '🙈 Masquer';
+    btn.textContent = panel.hidden ? '🔍 Voir la probabilité théorique' : '🙈 Masquer';
     if (!panel.hidden) updateRevealGrid();
     chart.update();
   }
@@ -771,14 +759,13 @@
     const t = totalSectors();
     const active = COLORS.filter(c => c.count > 0);
     const idxMap = active.map(c => COLORS.indexOf(c));
-    let csv = 'Couleur;Occurrences\n';
+    let csv = 'Couleur,Secteurs,Occurrences,Fréquence observée (%),Probabilité théorique (%)\n';
     idxMap.forEach((ci, j) => {
       const f = counts[ci] / total;
       const th = COLORS[ci].count / t;
-      csv += `${COLORS[ci].name};${counts[ci]}\n`;
+      csv += `${COLORS[ci].name},${COLORS[ci].count},${counts[ci]},${(f*100).toFixed(4)},${(th*100).toFixed(4)}\n`;
     });
-    
-    csv = 'sep=;\n' + csv;
+    csv += `Total,${t},${total},100.0000,100.0000\n`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = `roue_${total}_tours.csv`; a.click();
